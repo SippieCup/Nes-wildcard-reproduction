@@ -18,7 +18,7 @@ async function start(): Promise<void> {
 
     await server.register(Nes);
 
-    server.subscription(`/items/{type}/{id?}`, {
+    server.subscription(`/items/{params*}`, {
       auth: false,
     });
 
@@ -33,31 +33,20 @@ async function start(): Promise<void> {
 
 // Publish a random number every second on a random ID
 function publishRandomNumbers(srv: Hapi.Server) {
+  const actions = ["update", "delete", "create"];
   setInterval(() => {
-    const id = Math.floor(Math.random() * 2) + 1;
-    const value = Math.floor(Math.random() * 100) + 1;
-    srv.publish(`/items/changes/${id}`, {
-      action: "update",
-      item: {
-        id,
-        value,
-      },
+    const action = actions[Math.floor(Math.random() * 3)];
+    const item = {
+      id: Math.floor(Math.random() * 2) + 1,
+      value: Math.floor(Math.random() * 100) + 1,
+    };
+    srv.publish(`/items/changes/${action}/${item.id}`, {
+      action,
+      item,
     });
-    console.log(`Published ${value} on channel /items/${id}`);
-
-    /* 
-        Because the subscription path is /item/{type}/{id?}, the following
-        subscription should not be necessary, as the id is optional.
-
-        It should be enough to publish on /item/changes/{id} and the 
-        subscription on /item/changes should match to it's path.
-    */
-    // srv.publish(`/items/changes`, action: 'update',
-    //    item: {
-    //        id: randomId,
-    //        value: randomNumber,
-    //    });
-    // console.log(`Published ${randomNumber} on channel /items/changes`);
+    console.log(
+      `Published ${item.value} on channel /items/${action}/${item.id}`
+    );
   }, 1000);
 }
 
