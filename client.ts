@@ -1,50 +1,54 @@
 import Nes from "@hapi/nes";
+import minimist from "minimist";
 
-// Get command-line arguments
-const args = process.argv.slice(2);
-if (args.length === 0) {
-  console.error("Please provide a subscription path.");
+// Example usage:
+//   npx ts-node client.ts --object items [--instance 42] [--action update]
+// or short aliases:
+//   npx ts-node client.ts -o items -i 42 -a update
+
+const argv = minimist(process.argv.slice(2), {
+  alias: { object: "o", id: "i", action: "a" },
+});
+
+const basePath = argv.object;
+const id = argv.id;
+const action = argv.action;
+
+if (!basePath) {
+  console.error(
+    "Usage: npx ts-node client.ts --object items [--id 42] [--action update]"
+  );
   process.exit(1);
 }
 
-const basePath = args[0];
-const instanceId = args[1];
-const subscriptionPath = `/${basePath}/changes${
-  instanceId ? `/${instanceId}` : ""
-}`;
+let subscriptionPath = `/${basePath}/changes`;
+
+if (action) {
+  subscriptionPath += `/${action}`;
+}
+
+if (id) {
+  subscriptionPath += `/${id}`;
+}
 
 // Create a Nes client instance
 const client = new Nes.Client("ws://localhost:3000");
 
 async function startWebSocket() {
   try {
-    // Connect to the server with authentication headers
-    await client.connect({
-      // Reconnection options
-      delay: 1000, // Initial reconnection delay (ms)
-      maxDelay: 5000, // Maximum reconnection delay (ms)
-      retries: Infinity, // Number of reconnection attempts
-    });
+    await client.connect({ delay: 1000, maxDelay: 5000, retries: Infinity });
 
     console.log("Connected to WebSocket server");
+    console.log(`Opening channel ${subscriptionPath}`);
 
-    // Subscribe to the desired path
     await client.subscribe(subscriptionPath, (update) => {
       console.log("Received:", update);
     });
 
-    // await client.subscribe('/aservs/changes', (update) => {
-    //     console.log('Received update:', update);
-    //   });
-
     console.log(`Subscribed to ${subscriptionPath}`);
-
-    // Keep the process running
     process.stdin.resume();
   } catch (err) {
     console.error("Connection error:", err);
-
-    // Optional: Attempt to reconnect manually after a delay
     setTimeout(() => {
       console.log("Reconnecting...");
       startWebSocket();

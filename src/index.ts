@@ -34,18 +34,16 @@ async function start(): Promise<void> {
 // Publish a random number every second on a random ID
 function publishRandomNumbers(srv: Hapi.Server) {
   setInterval(() => {
-    const randomId = Math.floor(Math.random() * 2) + 1;
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    srv.publish(`/items/changes/${randomId}`, {
+    const id = Math.floor(Math.random() * 2) + 1;
+    const value = Math.floor(Math.random() * 100) + 1;
+    srv.publish(`/items/changes/${id}`, {
       action: "update",
       item: {
-        id: randomId,
-        value: randomNumber,
+        id,
+        value,
       },
     });
-    console.log(
-      `Published ${randomNumber} on channel /items/number/${randomId}`
-    );
+    console.log(`Published ${value} on channel /items/${id}`);
 
     /* 
         Because the subscription path is /item/{type}/{id?}, the following

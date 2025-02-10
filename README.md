@@ -37,7 +37,7 @@ Use ts-node (or native typescript file running) to run client.ts
 
 #### Client 1
 
-`npx ts-node websocket-test.ts items` 
+`npx ts-node client.ts --object items` 
 
 Desired behavior: This should recieve a message every time any item is published.
 
@@ -46,7 +46,7 @@ Actual behavior: This never recieves a message.
 
 #### Client 2
 
-`npx ts-node websocket-test.ts items 1` 
+`npx ts-node client.ts --object items --id 1` 
 
 Desired behavior: This should recieve a message every time item with `id` of 1 gets published. should not get other messages
 

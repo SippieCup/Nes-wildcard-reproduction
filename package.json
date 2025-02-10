@@ -21,7 +21,9 @@
   "dependencies": {
     "@hapi/hapi": "^21.3.12",
     "@hapi/nes": "^14.0.1",
-    "joi": "^17.13.3"
+    "@types/minimist": "^1.2.5",
+    "joi": "^17.13.3",
+    "minimist": "^1.2.8"
   },
   "devDependencies": {
     "@types/hapi__joi": "^17.1.15",
